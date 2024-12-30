@@ -61,7 +61,6 @@ Este proyecto consiste en un chatbot avanzado diseñado para CargaLibre. Su prop
 
 - Configurar la integración con Meta para recibir y enviar mensajes.
 - Registrar datos de usuarios en Google Sheets y analizar el historial.
-- Manejar archivos multimedia y clasificar intenciones.
 - Desplegar el proyecto en la nube y gestionar costos desde un CRM.
 
 ## Futuras mejoras
