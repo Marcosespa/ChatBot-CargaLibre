@@ -1,6 +1,10 @@
 import { createFlow } from "@builderbot/bot";
-import { mainFlow} from "./mainFlow"; 
+import { mainFlow, flowAdministrativos, flowCarga,flowCali,flowBogota } from "./mainFlow"; // Importamos todos los flujos
 
 export default createFlow([
-    mainFlow
+    mainFlow,
+    flowAdministrativos,
+    flowCarga,
+    flowCali,
+    flowBogota
 ]);
