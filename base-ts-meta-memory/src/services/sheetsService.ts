@@ -26,7 +26,7 @@ class SheetManager {
     try {
       // Crear timestamp en formato legible
       const now = new Date();
-      const timestamp = now.toLocaleString('es-CO', { 
+      const timestamp = now.toLocaleString('es-CO', {
         timeZone: 'America/Bogota',
         year: 'numeric',
         month: '2-digit',
@@ -66,7 +66,42 @@ class SheetManager {
       throw error;
     }
   }
+  
+  // Método para obtener los valores asociados a una remesa específica
+  async getRemesa(remesaValue: string): Promise<any[]> {
+    try {
+      // Leer los datos de la hoja 'Remesas'
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: 'Remesas!A:Z', // Ajusta el rango según las columnas que necesites leer
+      });
+
+      const rows = response.data.values;
+      if (!rows || rows.length === 0) {
+        throw new Error("La hoja 'Remesas' está vacía o no existe.");
+      }
+
+      // Buscar la remesa en la primera columna (Columna A)
+      const foundRow = rows.find(row => row[0] === remesaValue);
+
+      if (!foundRow) {
+        throw new Error(`No se encontró la remesa con el valor: ${remesaValue}`);
+      }
+
+      return foundRow; // Devuelve la fila completa asociada a la remesa
+    } catch (error) {
+      console.error("Error al buscar la remesa:", error);
+      throw error;
+    }
+  }
+
+
+
 }
+
+
+
+
 
 
 

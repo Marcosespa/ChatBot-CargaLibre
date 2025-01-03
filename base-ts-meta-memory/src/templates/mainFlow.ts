@@ -31,6 +31,7 @@ const userDecisions = {
   placa: "",
   hojaVida: "",
   disponibilidad: "",
+  remesa: "",
 };
 
 const userDecisionsAdmin = {
@@ -132,8 +133,7 @@ const flowCali = addKeyword(EVENTS.ACTION)
     ]);
   });
 
-
-
+//Flow carga
 const flowCarga = addKeyword(EVENTS.ACTION)
   .addAnswer("Gracias por escogernos para buscar Carga 🚛")
 
@@ -141,19 +141,19 @@ const flowCarga = addKeyword(EVENTS.ACTION)
   .addAnswer(
     [
       "Por favor, comparte tu ubicación actual 📍",
-      "Para esto, usa el clip 📎 o el ícono + y selecciona 'Ubicación'"
+      "Para esto, usa el clip 📎 o el ícono + y selecciona 'Ubicación'",
     ],
     {
       capture: true,
     },
     async (ctx, { state }) => {
       // Actualizar las coordenadas en userDecisions
-      if (ctx.type === 'location') {
+      if (ctx.type === "location") {
         userDecisions.latitude = ctx.latitude?.toString();
         userDecisions.longitude = ctx.longitude?.toString();
         console.log("Ubicación capturada:", {
           latitude: ctx.latitude,
-          longitude: ctx.longitude
+          longitude: ctx.longitude,
         });
       }
     }
@@ -170,7 +170,7 @@ const flowCarga = addKeyword(EVENTS.ACTION)
       "3️⃣ Doble Troque",
       "4️⃣ Mini Mula",
       "5️⃣ Mula",
-      "6️⃣ Ninguna de las anteriores"
+      "6️⃣ Ninguna de las anteriores",
     ],
     { capture: true },
     async (ctx, { flowDynamic, state }): Promise<void> => {
@@ -181,14 +181,16 @@ const flowCarga = addKeyword(EVENTS.ACTION)
         "3": "Doble Troque",
         "4": "Mini Mula",
         "5": "Mula",
-        "6": "Otro"
+        "6": "Otro",
       };
 
       // Obtener el tipo de vehículo basado en la selección del usuario
       const selectedType = vehicleTypes[ctx.body] || ctx.body;
       userDecisions.carType = selectedType;
       await state.update({ carType: selectedType });
-      await flowDynamic(`El tipo de carro que seleccionaste es: ${selectedType}`);
+      await flowDynamic(
+        `El tipo de carro que seleccionaste es: ${selectedType}`
+      );
       console.log("CARRO TIPO:", userDecisions.carType);
     }
   )
@@ -197,30 +199,30 @@ const flowCarga = addKeyword(EVENTS.ACTION)
       "¿Tu vehículo tiene disponibilidad inmediata para cargar? 🚛",
       "",
       "1️⃣ Sí, disponible ahora",
-      "2️⃣ No, disponible en otro momento"
+      "2️⃣ No, disponible en otro momento",
     ],
     { capture: true },
     async (ctx, { flowDynamic, fallBack, state }): Promise<void> => {
       const opcion = ctx.body;
-  
+
       if (!["1", "2"].includes(opcion)) {
         await flowDynamic("❌ Por favor, selecciona 1 o 2");
         return fallBack();
       }
-  
+
       const disponibilidad = opcion === "1" ? "Inmediata" : "Posterior";
       userDecisions.disponibilidad = disponibilidad;
       await state.update({ disponibilidad });
-  
+
       await flowDynamic(`✅ Entendido! Disponibilidad: ${disponibilidad}`);
     }
   )
-  
+
   // Peso del vehiculo
   .addAction(async (_, { flowDynamic }): Promise<void> => {
     await flowDynamic([
       "¿Cuál es el peso máximo de carga que puede transportar tu vehículo? 🏋️‍♂️",
-      "Por favor, ingresa el peso en kilogramos (KG)"
+      "Por favor, ingresa el peso en kilogramos (KG)",
     ]);
   })
 
@@ -229,7 +231,9 @@ const flowCarga = addKeyword(EVENTS.ACTION)
     async (ctx, { flowDynamic, state }): Promise<void> => {
       userDecisions.peso = ctx.body;
       await state.update({ peso: ctx.body });
-      await flowDynamic(`✅ Perfecto! El peso máximo de carga es: ${ctx.body} KG`);
+      await flowDynamic(
+        `✅ Perfecto! El peso máximo de carga es: ${ctx.body} KG`
+      );
     }
   )
 
@@ -237,7 +241,7 @@ const flowCarga = addKeyword(EVENTS.ACTION)
   .addAction(async (_, { flowDynamic }): Promise<void> => {
     await flowDynamic([
       "¿Cuál es el volumen de carga de tu vehículo? 📦",
-      "Por favor, ingresa el volumen en metros cúbicos (M³)"
+      "Por favor, ingresa el volumen en metros cúbicos (M³)",
     ]);
   })
 
@@ -254,7 +258,7 @@ const flowCarga = addKeyword(EVENTS.ACTION)
   .addAction(async (_, { flowDynamic }): Promise<void> => {
     await flowDynamic([
       "¿Cuál es la placa de tu vehículo? 🚛",
-      "Por favor, ingresa la placa sin espacios"
+      "Por favor, ingresa la placa sin espacios",
     ]);
   })
 
@@ -288,7 +292,7 @@ const flowCarga = addKeyword(EVENTS.ACTION)
       try {
         // Asegúrate de que ctx.from existe y es una cadena válida
         if (!ctx.from) {
-          throw new Error('Número de teléfono no disponible');
+          throw new Error("Número de teléfono no disponible");
         }
 
         await sheetsService.createUser(ctx.from, userDecisions);
@@ -306,7 +310,60 @@ const flowCarga = addKeyword(EVENTS.ACTION)
       console.log("Datos completos:", userDecisions);
     }
   );
-  
+
+const flowSaldos = addKeyword(EVENTS.ACTION)
+  .addAnswer("Ahora te ayudaré a buscar remesas 📦")
+
+  // Solicitar al usuario el número de remesa
+  .addAction(async (_, { flowDynamic }): Promise<void> => {
+    await flowDynamic([
+      "¿Cuál es el número de remesa a buscar?",
+      "Por favor, ingresa la remesa sin espacios.",
+    ]);
+  })
+
+  // Capturar el número de remesa ingresado por el usuario
+  .addAction(
+    { capture: true },
+    async (ctx, { flowDynamic, state }): Promise<void> => {
+      try {
+        // Guardar la remesa en el estado y en userDecisions
+        userDecisions.remesa = ctx.body;
+        await state.update({ remesa: ctx.body });
+
+        // Confirmar al usuario
+        await flowDynamic(
+          `✅ ¡Gracias! La remesa ${ctx.body} está siendo buscada...`
+        );
+
+        // Llamar a un servicio para buscar la remesa
+        const remesaData = await sheetsService.getRemesa(ctx.body);
+
+        // Verificar si se encontró la remesa
+        if (remesaData) {
+          await flowDynamic([
+            "✅ ¡Remesa encontrada!",
+            `Aquí están los detalles:`,
+            `Número: ${remesaData[0]}`,
+            `Destinatario: ${remesaData[1]}`,
+            `Estado: ${remesaData[2]}`,
+            `Fecha: ${remesaData[3]}`,
+          ]);
+        } else {
+          await flowDynamic(
+            `❌ Lo siento, no se encontró la remesa con el número: ${ctx.body}.`
+          );
+        }
+      } catch (error) {
+        console.error("Error al buscar la remesa:", error);
+        await flowDynamic(
+          `⚠️ Lo siento, ocurrió un problema al buscar la remesa. Intenta nuevamente más tarde.`
+        );
+      }
+    }
+  );
+
+
 // Flujos administrativos
 const flowAdministrativos = addKeyword(EVENTS.ACTION)
   .addAnswer("Bienvenido a la parte administrativa") // Elimina el punto innecesario aquí
@@ -356,7 +413,11 @@ const mainFlow = addKeyword(EVENTS.WELCOME)
   .addAnswer(
     "¿Te interesan buscar carga o procesos administrativos con Rutix?",
     {
-      buttons: [{ body: "Buscar Carga 🚚" }, { body: "Administrativos 🖥️" }],
+      buttons: [
+        { body: "Buscar Carga 🚚" },
+        { body: "Administrativos 🖥️" },
+        { body: "Averiguar Saldo" },
+      ],
       capture: true,
     },
     async (ctx, { state, gotoFlow }) => {
@@ -366,6 +427,8 @@ const mainFlow = addKeyword(EVENTS.WELCOME)
         return gotoFlow(flowCarga);
       } else if (answer.includes("administrativos")) {
         return gotoFlow(flowAdministrativos);
+      } else if (answer.includes("saldo")) {
+        return gotoFlow(flowSaldos);
       } else {
         return gotoFlow(mainFlow);
       }
@@ -373,4 +436,5 @@ const mainFlow = addKeyword(EVENTS.WELCOME)
   );
 
 // Exportaciones
-export { mainFlow, flowCarga, flowAdministrativos, flowCali, flowBogota };
+
+export { mainFlow, flowCarga, flowAdministrativos, flowCali, flowBogota ,flowSaldos};
