@@ -31,6 +31,11 @@ COPY --from=builder /app/package*.json ./
 # Install production dependencies only
 RUN npm ci --only=production
 
+# Create log directory and set permissions
+RUN mkdir -p /app/logs && \
+    chown -R node:node /app && \
+    chmod 755 /app
+
 # Set non-root user for security
 USER node
 
