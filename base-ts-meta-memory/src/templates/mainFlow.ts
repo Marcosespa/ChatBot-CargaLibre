@@ -1,10 +1,8 @@
-import { addKeyword, EVENTS } from "@builderbot/bot";
 import sheetsService from "~/services/sheetsService";
 
-import { addKeyword, createFlow, EVENTS } from "@builderbot/bot";
 import { createBot, createProvider, utils } from "@builderbot/bot";
 import { MetaProvider as Provider } from "@builderbot/provider-meta";
-import { addKeyword, addAction } from "@builderbot/bot";
+import { addKeyword, EVENTS } from "@builderbot/bot";
 
 interface BotState {
   userName?: string;
@@ -423,7 +421,8 @@ const mainFlow = addKeyword(EVENTS.WELCOME)
     async (ctx, { state, gotoFlow }) => {
       const answer = ctx.body.toLowerCase();
       if (answer.includes("buscar carga")) {
-        state.available = true;
+        // state.available = true;
+        await state.update({ available: true });
         return gotoFlow(flowCarga);
       } else if (answer.includes("administrativos")) {
         return gotoFlow(flowAdministrativos);

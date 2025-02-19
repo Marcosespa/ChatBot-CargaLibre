@@ -17,7 +17,7 @@ RUN npm install -g rollup typescript
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN npm run dev
 
 # Production stage
 FROM node:16-alpine
