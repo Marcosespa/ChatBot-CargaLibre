@@ -1,43 +1,21 @@
-# Build stage
-FROM node:16-alpine as builder
+FROM node:21-alpine3.18
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache python3 make g++ git
-
-# Copy package files
+# Copy package files first to leverage Docker cache
 COPY package*.json ./
 
-# Install all dependencies and build tools
-RUN npm install
-RUN npm install -g rollup typescript tsx
+# Install dependencies and build tools in one layer
+RUN apk add --no-cache python3 make g++ git && \
+    npm install && \
+    npm install -g rollup typescript tsx
 
 # Copy source code
 COPY . .
 
-# Build the application using build script
-RUN npm run build
-
-# Production stage
-FROM node:16-alpine
-
-WORKDIR /app
-
-# Copy built assets from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-
-# Install production dependencies only
-RUN npm ci --only=production
-
-# Create log directory and set permissions
-RUN mkdir -p /app/logs && \
-    chown -R node:node /app && \
-    chmod 755 /app
-
-# Set non-root user for security
-USER node
+# Build the application
+RUN npm run build && \
+    npm prune --production
 
 # Start the application
 CMD ["npm", "start"]
