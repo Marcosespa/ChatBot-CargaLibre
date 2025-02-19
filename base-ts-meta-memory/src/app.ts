@@ -17,9 +17,9 @@ const queue = new Queue({
 })
 
 const chatwoot = new ChatwootClass({
-    account: "1",
+    account: '1',
     token: 'ekizhEPG946U5wmoE9ANBoqH',
-    endpoint: 'http://149.50.145.249:3000'
+    endpoint: 'https://chatwoot-cargolibre.vue.lat'
 })
 
 const main = async () => {
