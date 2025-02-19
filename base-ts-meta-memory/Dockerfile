@@ -11,13 +11,13 @@ COPY package*.json ./
 
 # Install all dependencies and build tools
 RUN npm install
-RUN npm install -g rollup typescript
+RUN npm install -g rollup typescript tsx
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run dev
+# Build the application using build script
+RUN npm run build
 
 # Production stage
 FROM node:16-alpine
