@@ -3,11 +3,17 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies including devDependencies
 RUN npm install
+
+# Install rollup globally
+RUN npm install -g rollup
 
 # Copy source code
 COPY . .
